@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hamburg Triathlon Plan 2025</title>
+<style>
+:root{--bg:#0f1117;--bg2:#181b24;--bg3:#1e2130;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.15);--text:#e8eaf0;--text2:#8b90a0;--text3:#555b70;--swim:#1a9bd7;--bike:#e8a020;--run:#e05555;--rest:#4a7c59;--accent:#5b8ef0;--green:#3dba72;--z1:#3dba72;--z2:#5b8ef0;--z3:#e8a020;--z4:#e05555;--z5:#c040c0;--radius:12px;--radius-sm:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;gap:10px;flex-wrap:wrap}
+.logo{font-size:17px;font-weight:700;letter-spacing:-.5px;flex-shrink:0}.logo span{color:var(--accent)}
+.race-badge{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text2);flex-shrink:0}
+.race-badge strong{color:var(--text)}
+.tabs{display:flex;gap:2px;padding:12px 20px 0;max-width:960px;margin:0 auto;border-bottom:1px solid var(--border)}
+.tab-btn{background:transparent;border:none;color:var(--text2);font-size:13px;padding:7px 14px;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;margin-bottom:-1px}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-btn:hover{color:var(--text)}
+.tab-content{display:none}.tab-content.active{display:block}
+main{max-width:960px;margin:0 auto;padding:18px 14px 60px}
+/* overview */
+.phase-overview{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:20px}
+.phase-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;cursor:pointer;transition:border-color .15s}
+.phase-card:hover{border-color:var(--border2)}
+.phase-card.active-phase{border-color:var(--accent)}
+.pc-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:4px}
+.pc-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.pc-weeks{font-size:12px;color:var(--text2);margin-bottom:8px}
+.pc-bar{height:3px;border-radius:2px;background:var(--bg3);margin-top:6px}
+.pc-fill{height:3px;border-radius:2px;transition:width .5s}
+/* week nav */
+.week-nav{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.week-nav-title{font-size:18px;font-weight:700;flex:1}
+.week-nav-sub{font-size:12px;color:var(--text2)}
+.nav-btn{background:var(--bg2);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:6px 12px;font-size:13px;cursor:pointer}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent)}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.week-select{background:var(--bg2);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:6px 10px;font-size:13px;cursor:pointer}
+.phase-pill{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
+#adjust-btn{background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer}
+#adjust-btn:hover{opacity:.85}
+#adjust-btn:disabled{opacity:.35;cursor:not-allowed}
+/* swap bar */
+.swap-bar{background:rgba(232,160,32,.1);border:1px solid rgba(232,160,32,.3);border-radius:var(--radius-sm);padding:8px 13px;font-size:13px;color:var(--bike);margin-bottom:10px;display:none;align-items:center;gap:10px}
+.swap-bar button{background:transparent;border:none;color:var(--text3);font-size:17px;cursor:pointer;margin-left:auto}
+/* legend */
+.legend{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
+.progress-bar{background:var(--bg3);border-radius:3px;height:3px;margin-bottom:12px}
+.progress-fill{background:var(--accent);border-radius:3px;height:100%;transition:width .5s}
+/* day cards */
+.days-grid{display:flex;flex-direction:column;gap:7px;margin-bottom:18px}
+.day-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;display:grid;grid-template-columns:72px 1fr auto;align-items:center;gap:12px;transition:border-color .2s,box-shadow .15s,opacity .2s;cursor:grab;user-select:none}
+.day-card.race-day{border-color:gold;background:rgba(255,200,0,.05);cursor:default}
+.day-card:active{cursor:grabbing}
+.day-card.done{border-color:var(--green);opacity:.7}
+.day-card.rest-day{opacity:.42;cursor:default}
+.day-card.dragging{opacity:.25;border-style:dashed}
+.day-card.drag-over{border-color:var(--accent);box-shadow:0 0 0 2px rgba(91,142,240,.22)}
+.day-card.swap-selected{border-color:var(--bike);box-shadow:0 0 0 2px rgba(232,160,32,.25)}
+.day-name{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+.day-date{font-size:13px;font-weight:600}
+.stype{display:flex;align-items:center;gap:8px}
+.type-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.type-dot.swim{background:var(--swim)}.type-dot.bike{background:var(--bike)}.type-dot.run{background:var(--run)}.type-dot.rest{background:var(--rest)}.type-dot.race{background:gold}
+.sname{font-size:13px;font-weight:600}
+.sdesc{font-size:12px;color:var(--text2);margin-top:1px}
+.smeta{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.meta-pill{font-size:11px;padding:2px 7px;border-radius:20px;border:1px solid var(--border2);color:var(--text2)}
+.zone-pill{font-size:11px;padding:2px 7px;border-radius:20px;font-weight:600}
+.day-actions{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.done-badge{background:var(--green);color:white;font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.feedback-btn{background:transparent;border:1px solid var(--border2);color:var(--text2);border-radius:var(--radius-sm);padding:5px 10px;font-size:11px;cursor:pointer;white-space:nowrap}
+.feedback-btn:hover{border-color:var(--accent);color:var(--accent)}
+.feedback-btn.primary{background:var(--accent);border-color:var(--accent);color:white}
+.swap-btn{background:transparent;border:1px solid var(--border2);color:var(--text3);border-radius:var(--radius-sm);padding:3px 8px;font-size:11px;cursor:pointer;white-space:nowrap}
+.swap-btn:hover{border-color:var(--bike);color:var(--bike)}
+.swap-btn.active{background:rgba(232,160,32,.12);border-color:var(--bike);color:var(--bike)}
+/* ai panel */
+.ai-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.ai-panel h4{font-size:14px;margin-bottom:7px}
+.ai-panel p{font-size:13px;color:var(--text2);line-height:1.6}
+.ai-loading{display:flex;align-items:center;gap:9px;color:var(--text2);font-size:13px}
+.spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* zones tab */
+.hr-intro{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px}
+.hr-intro h3{font-size:15px;margin-bottom:5px}
+.hr-intro p{font-size:13px;color:var(--text2);line-height:1.6}
+.hr-stats{display:flex;gap:10px;margin-top:11px;flex-wrap:wrap}
+.hr-stat{background:var(--bg3);border-radius:var(--radius-sm);padding:9px 12px;min-width:100px}
+.hr-stat-label{font-size:11px;color:var(--text3);margin-bottom:2px}
+.hr-stat-val{font-size:17px;font-weight:700}
+.zones-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-bottom:20px}
+.zone-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px}
+.zone-header{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.zone-badge{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.zone-num{font-size:13px;font-weight:600}
+.zone-bpm{font-size:12px;color:var(--text2);margin-bottom:3px}
+.zone-bar-wrap{background:var(--bg3);border-radius:3px;height:4px;margin-bottom:7px}
+.zone-bar{height:4px;border-radius:3px}
+.zone-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.zone-sports{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.sport-tag{font-size:11px;padding:2px 7px;border-radius:20px;border:1px solid var(--border2);color:var(--text3)}
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:20px;width:100%;max-width:460px;max-height:85vh;overflow-y:auto}
+.modal h3{font-size:16px;margin-bottom:3px}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px}
+.rating-row{display:flex;gap:6px;flex-wrap:wrap}
+.rating-btn{flex:1;min-width:50px;padding:8px 6px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-size:12px;text-align:center;transition:all .15s}
+.rating-btn:hover{border-color:var(--accent)}
+.rating-btn.selected{background:var(--accent);border-color:var(--accent);color:white}
+.rating-btn.selected.easy{background:var(--green);border-color:var(--green)}
+.rating-btn.selected.hard{background:var(--run);border-color:var(--run)}
+.rating-btn.selected.skip{background:var(--text3);border-color:var(--text3)}
+textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;padding:8px 10px;resize:vertical;min-height:60px;font-family:inherit}
+textarea::placeholder{color:var(--text3)}
+.modal-actions{display:flex;gap:8px;margin-top:16px}
+.btn-cancel{flex:1;padding:9px;background:transparent;border:1px solid var(--border2);color:var(--text2);border-radius:var(--radius-sm);cursor:pointer;font-size:13px}
+.btn-save{flex:2;padding:9px;background:var(--accent);border:none;color:white;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:600}
+.btn-save:hover{opacity:.85}
+@media(max-width:560px){.day-card{grid-template-columns:1fr;gap:7px}.day-actions{flex-direction:row;flex-wrap:wrap}.zones-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Tri<span>Plan</span> Hamburg 2025</div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span id="sync-status" style="font-size:11px;color:var(--text3)">Verbinde...</span>
+    <button onclick="openSyncModal()" style="background:transparent;border:1px solid var(--border2);color:var(--text2);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer" title="Sync-Code verwalten">🔗 Sync</button>
+    <div class="race-badge">🏁 <strong>11. Juli 2025</strong> · Olympisch</div>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('plan',this)">📅 Plan</button>
+  <button class="tab-btn" onclick="switchTab('overview',this)">🗺 Übersicht</button>
+  <button class="tab-btn" onclick="switchTab('zones',this)">❤️ HF-Zonen</button>
+</div>
+
+<!-- ══ PLAN TAB ══ -->
+<div id="tab-plan" class="tab-content active">
+<main>
+  <div id="ai-panel-wrap" style="display:none"></div>
+  <div class="week-nav">
+    <div style="flex:1">
+      <div class="week-nav-title" id="wk-title">Woche 1</div>
+      <div class="week-nav-sub" id="wk-sub"></div>
+    </div>
+    <select class="week-select" id="week-select" onchange="gotoWeek(+this.value)"></select>
+    <button class="nav-btn" id="prev-btn" onclick="changeWeek(-1)">◀</button>
+    <button class="nav-btn" id="next-btn" onclick="changeWeek(+1)">▶</button>
+    <button id="adjust-btn" onclick="requestAI()" disabled>⚡ KI-Anpassung</button>
+  </div>
+
+  <div class="swap-bar" id="swap-bar">
+    <span>↔ Wähle eine zweite Einheit zum Tauschen</span>
+    <button onclick="cancelSwap()">✕</button>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="type-dot swim"></div>Schwimmen</div>
+    <div class="legend-item"><div class="type-dot bike"></div>Rennrad</div>
+    <div class="legend-item"><div class="type-dot run"></div>Laufen</div>
+    <div class="legend-item"><div class="type-dot rest"></div>Erholung</div>
+    <div class="legend-item" style="color:var(--text3);font-style:italic">↕ Ziehen oder ⇄ Tauschen</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  <div class="days-grid" id="days-grid"></div>
+</main>
+</div>
+
+<!-- ══ OVERVIEW TAB ══ -->
+<div id="tab-overview" class="tab-content">
+<main>
+  <div style="margin-bottom:18px">
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px">15-Wochen Übersicht</div>
+    <div style="font-size:13px;color:var(--text2)">Klick auf eine Phase oder Woche, um direkt dorthin zu springen.</div>
+  </div>
+  <div class="phase-overview" id="phase-overview"></div>
+  <div id="all-weeks-grid" style="display:flex;flex-direction:column;gap:8px"></div>
+</main>
+</div>
+
+<!-- ══ ZONES TAB ══ -->
+<div id="tab-zones" class="tab-content">
+<main>
+  <div class="hr-intro">
+    <h3>Deine Herzfrequenzzonen</h3>
+    <p>Berechnet aus deinen Werten: HFmax 205 bpm · 5:40/km @ 150 bpm (73 % HFmax). 5-Zonen-Modell nach Friel/Coggan.</p>
+    <div class="hr-stats">
+      <div class="hr-stat"><div class="hr-stat-label">HFmax</div><div class="hr-stat-val">205 bpm</div></div>
+      <div class="hr-stat"><div class="hr-stat-label">Pace @ 150 bpm</div><div class="hr-stat-val">5:40/km</div></div>
+      <div class="hr-stat"><div class="hr-stat-label">150 bpm = </div><div class="hr-stat-val" style="color:var(--z2)">Zone 2</div></div>
+      <div class="hr-stat"><div class="hr-stat-label">Renntempo Ziel</div><div class="hr-stat-val" style="color:var(--z3)">Zone 3</div></div>
+    </div>
+  </div>
+  <div class="zones-grid" id="zones-grid"></div>
+  <div class="ai-panel">
+    <h4>💡 Einordnung & Trainingstipp</h4>
+    <p>Bei 5:40/km und 150 bpm bist du gut in <strong style="color:var(--z2)">Zone 2</strong>. Das ist die perfekte Basis. Ziel der nächsten 15 Wochen: Die aerobe Kapazität verschieben, sodass du dieselbe Pace mit <em>niedrigerem</em> Puls läufst – oder schneller bei gleicher Herzfrequenz. Auf dem Rennrad wirst du beim Hamburg Triathlon ~70–80 % der Zeit in Zone 2–3 (143–176 bpm) verbringen.</p>
+  </div>
+</main>
+</div>
+
+<!-- ══ Modal ══ -->
+<div class="modal-overlay" id="modal" style="display:none">
+  <div class="modal">
+    <h3 id="modal-title"></h3>
+    <p class="modal-sub" id="modal-sub"></p>
+    <div class="field">
+      <label>Wie war die Einheit?</label>
+      <div class="rating-row">
+        <button class="rating-btn easy"  onclick="selRating('easy',this)">😄 Zu leicht</button>
+        <button class="rating-btn"       onclick="selRating('good',this)">👍 Gut</button>
+        <button class="rating-btn hard"  onclick="selRating('hard',this)">🔥 Zu schwer</button>
+        <button class="rating-btn skip"  onclick="selRating('skipped',this)">⏭ Skip</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Notiz (optional)</label>
+      <textarea id="feedback-note" placeholder="z.B. Puls zu hoch, Technik gut..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Abbrechen</button>
+      <button class="btn-save"   onclick="saveFeedback()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const BASE_SESSIONS = [{"id":0,"week":1,"day":"Montag","date":"31. März","dateISO":"2025-03-31","type":"swim","name":"Schwimmen – Technik","desc":"Zugphase & Körperlage","zone":"Z1–Z2","bpm":"< 164","meta":["45 min","1.800 m"],"workout":"WU: 300m locker. HT: 6×150m Technik Zugphase, 30 Sek Pause. CD: 200m Rücken. Ziel: gleichmäßige Wasserlage.","feedback":null,"note":""},{"id":1,"week":1,"day":"Dienstag","date":"1. April","dateISO":"2025-04-01","type":"bike","name":"Rennrad – Grundlage","desc":"Zone 2 Ausdauer","zone":"Z2","bpm":"143–164","meta":["75 min","~35 km"],"workout":"Flache bis leicht hügelige Strecke. Trittfrequenz 85–95 rpm. Puls unter 164 bpm halten.","feedback":null,"note":""},{"id":2,"week":1,"day":"Mittwoch","date":"2. April","dateISO":"2025-04-02","type":"rest","name":"Aktive Erholung","desc":"Dehnen, Mobilität","zone":"Z1","bpm":"< 143","meta":["30 min","Optional"],"workout":"Leichtes Stretching (Hüfte, Schultern). Kein Druck.","feedback":null,"note":""},{"id":3,"week":1,"day":"Donnerstag","date":"3. April","dateISO":"2025-04-03","type":"swim","name":"Schwimmen – Ausdauer","desc":"Längere Blöcke, Wettkampf-Pace","zone":"Z2–Z3","bpm":"143–176","meta":["55 min","2.200 m"],"workout":"WU: 400m locker. HT: 3×600m Wettkampf-Pace (143–176 bpm), 90 Sek Pause. CD: 200m.","feedback":null,"note":""},{"id":4,"week":1,"day":"Freitag","date":"4. April","dateISO":"2025-04-04","type":"bike","name":"Rennrad – Intervalle","desc":"Zone 3–4 Intervalle","zone":"Z3–Z4","bpm":"164–189","meta":["60 min","~28 km"],"workout":"15 min WU. 5×4 min Zone 4 (176–189 bpm), 3 min Pause. 15 min CD.","feedback":null,"note":""},{"id":5,"week":1,"day":"Samstag","date":"5. April","dateISO":"2025-04-05","type":"bike","name":"Rennrad – Langer Ritt","desc":"Grundlagenausdauer","zone":"Z1–Z2","bpm":"< 164","meta":["100–120 min","~55 km"],"workout":"Locker & gleichmäßig. Ernährung üben: alle 45 min Gel/Riegel. Puls unter 164 bpm.","feedback":null,"note":""},{"id":6,"week":1,"day":"Sonntag","date":"6. April","dateISO":"2025-04-06","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Schlafen, trinken, erholen.","feedback":null,"note":""},{"id":7,"week":2,"day":"Montag","date":"7. April","dateISO":"2025-04-07","type":"swim","name":"Schwimmen – Technik","desc":"Zugphase & Körperlage","zone":"Z1–Z2","bpm":"< 164","meta":["45 min","2.000 m"],"workout":"WU: 300m locker. HT: 6×150m Technik Zugphase, 30 Sek Pause. CD: 200m Rücken. Ziel: gleichmäßige Wasserlage.","feedback":null,"note":""},{"id":8,"week":2,"day":"Dienstag","date":"8. April","dateISO":"2025-04-08","type":"bike","name":"Rennrad – Grundlage","desc":"Zone 2 Ausdauer","zone":"Z2","bpm":"143–164","meta":["75 min","~40 km"],"workout":"Flache bis leicht hügelige Strecke. Trittfrequenz 85–95 rpm. Puls unter 164 bpm halten.","feedback":null,"note":""},{"id":9,"week":2,"day":"Mittwoch","date":"9. April","dateISO":"2025-04-09","type":"rest","name":"Aktive Erholung","desc":"Dehnen, Mobilität","zone":"Z1","bpm":"< 143","meta":["30 min","Optional"],"workout":"Leichtes Stretching (Hüfte, Schultern). Kein Druck.","feedback":null,"note":""},{"id":10,"week":2,"day":"Donnerstag","date":"10. April","dateISO":"2025-04-10","type":"swim","name":"Schwimmen – Ausdauer","desc":"Längere Blöcke, Wettkampf-Pace","zone":"Z2–Z3","bpm":"143–176","meta":["55 min","2.500 m"],"workout":"WU: 400m locker. HT: 3×600m Wettkampf-Pace (143–176 bpm), 90 Sek Pause. CD: 200m.","feedback":null,"note":""},{"id":11,"week":2,"day":"Freitag","date":"11. April","dateISO":"2025-04-11","type":"bike","name":"Rennrad – Intervalle","desc":"Zone 3–4 Intervalle","zone":"Z3–Z4","bpm":"164–189","meta":["60 min","~32 km"],"workout":"15 min WU. 5×4 min Zone 4 (176–189 bpm), 3 min Pause. 15 min CD.","feedback":null,"note":""},{"id":12,"week":2,"day":"Samstag","date":"12. April","dateISO":"2025-04-12","type":"bike","name":"Rennrad – Langer Ritt","desc":"Grundlagenausdauer","zone":"Z1–Z2","bpm":"< 164","meta":["100–120 min","~65 km"],"workout":"Locker & gleichmäßig. Ernährung üben: alle 45 min Gel/Riegel. Puls unter 164 bpm.","feedback":null,"note":""},{"id":13,"week":2,"day":"Sonntag","date":"13. April","dateISO":"2025-04-13","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Schlafen, trinken, erholen.","feedback":null,"note":""},{"id":14,"week":3,"day":"Montag","date":"14. April","dateISO":"2025-04-14","type":"swim","name":"Schwimmen – Technik (locker)","desc":"Reduktion, Fokus Technik","zone":"Z1–Z2","bpm":"< 164","meta":["35 min","1.400 m"],"workout":"WU 200m. HT: 4×100m Technik locker. CD 200m. Leichte Einheit, Erholung.","feedback":null,"note":""},{"id":15,"week":3,"day":"Dienstag","date":"15. April","dateISO":"2025-04-15","type":"rest","name":"Aktive Erholung","desc":"Mobilität, Dehnen","zone":"Z1","bpm":"< 143","meta":["20 min","Optional"],"workout":"Leichtes Stretching. Kein Druck.","feedback":null,"note":""},{"id":16,"week":3,"day":"Mittwoch","date":"16. April","dateISO":"2025-04-16","type":"bike","name":"Rennrad – Locker","desc":"Erholungsfahrt Zone 1–2","zone":"Z1–Z2","bpm":"< 164","meta":["50 min","~22 km"],"workout":"Sehr locker, kein Tempo. Trittfrequenz 85 rpm. Körper erholen lassen.","feedback":null,"note":""},{"id":17,"week":3,"day":"Donnerstag","date":"17. April","dateISO":"2025-04-17","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training.","feedback":null,"note":""},{"id":18,"week":3,"day":"Freitag","date":"18. April","dateISO":"2025-04-18","type":"swim","name":"Schwimmen – Locker","desc":"Lockeres Dauerschwimmen","zone":"Z2","bpm":"143–164","meta":["40 min","1.600 m"],"workout":"WU 300m locker. 1.000m gleichmäßig Zone 2. CD 300m.","feedback":null,"note":""},{"id":19,"week":3,"day":"Samstag","date":"19. April","dateISO":"2025-04-19","type":"bike","name":"Rennrad – Kurz","desc":"Lockere Ausfahrt","zone":"Z1–Z2","bpm":"< 164","meta":["60 min","~28 km"],"workout":"Entspannte Fahrt, keine Intensität. Erholung.","feedback":null,"note":""},{"id":20,"week":3,"day":"Sonntag","date":"20. April","dateISO":"2025-04-20","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Schlafen, trinken.","feedback":null,"note":""},{"id":21,"week":4,"day":"Montag","date":"21. April","dateISO":"2025-04-21","type":"swim","name":"Schwimmen – Technik","desc":"Zugphase & Körperlage","zone":"Z1–Z2","bpm":"< 164","meta":["45 min","2.400 m"],"workout":"WU: 300m locker. HT: 6×150m Technik Zugphase, 30 Sek Pause. CD: 200m Rücken. Ziel: gleichmäßige Wasserlage.","feedback":null,"note":""},{"id":22,"week":4,"day":"Dienstag","date":"22. April","dateISO":"2025-04-22","type":"bike","name":"Rennrad – Grundlage","desc":"Zone 2 Ausdauer","zone":"Z2","bpm":"143–164","meta":["75 min","~45 km"],"workout":"Flache bis leicht hügelige Strecke. Trittfrequenz 85–95 rpm. Puls unter 164 bpm halten.","feedback":null,"note":""},{"id":23,"week":4,"day":"Mittwoch","date":"23. April","dateISO":"2025-04-23","type":"rest","name":"Aktive Erholung","desc":"Dehnen, Mobilität","zone":"Z1","bpm":"< 143","meta":["30 min","Optional"],"workout":"Leichtes Stretching (Hüfte, Schultern). Kein Druck.","feedback":null,"note":""},{"id":24,"week":4,"day":"Donnerstag","date":"24. April","dateISO":"2025-04-24","type":"swim","name":"Schwimmen – Ausdauer","desc":"Längere Blöcke, Wettkampf-Pace","zone":"Z2–Z3","bpm":"143–176","meta":["55 min","2.800 m"],"workout":"WU: 400m locker. HT: 3×600m Wettkampf-Pace (143–176 bpm), 90 Sek Pause. CD: 200m.","feedback":null,"note":""},{"id":25,"week":4,"day":"Freitag","date":"25. April","dateISO":"2025-04-25","type":"bike","name":"Rennrad – Intervalle","desc":"Zone 3–4 Intervalle","zone":"Z3–Z4","bpm":"164–189","meta":["60 min","~38 km"],"workout":"15 min WU. 5×4 min Zone 4 (176–189 bpm), 3 min Pause. 15 min CD.","feedback":null,"note":""},{"id":26,"week":4,"day":"Samstag","date":"26. April","dateISO":"2025-04-26","type":"bike","name":"Rennrad – Langer Ritt","desc":"Grundlagenausdauer","zone":"Z1–Z2","bpm":"< 164","meta":["100–120 min","~75 km"],"workout":"Locker & gleichmäßig. Ernährung üben: alle 45 min Gel/Riegel. Puls unter 164 bpm.","feedback":null,"note":""},{"id":27,"week":4,"day":"Sonntag","date":"27. April","dateISO":"2025-04-27","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Schlafen, trinken, erholen.","feedback":null,"note":""},{"id":28,"week":5,"day":"Montag","date":"28. April","dateISO":"2025-04-28","type":"swim","name":"Schwimmen – Technik","desc":"Zugphase & Körperlage","zone":"Z1–Z2","bpm":"< 164","meta":["45 min","2.400 m"],"workout":"WU: 300m locker. HT: 6×150m Technik Zugphase, 30 Sek Pause. CD: 200m Rücken. Ziel: gleichmäßige Wasserlage.","feedback":null,"note":""},{"id":29,"week":5,"day":"Dienstag","date":"29. April","dateISO":"2025-04-29","type":"bike","name":"Rennrad – Grundlage","desc":"Zone 2 Ausdauer","zone":"Z2","bpm":"143–164","meta":["75 min","~45 km"],"workout":"Flache bis leicht hügelige Strecke. Trittfrequenz 85–95 rpm. Puls unter 164 bpm halten.","feedback":null,"note":""},{"id":30,"week":5,"day":"Mittwoch","date":"30. April","dateISO":"2025-04-30","type":"rest","name":"Aktive Erholung","desc":"Dehnen, Mobilität","zone":"Z1","bpm":"< 143","meta":["30 min","Optional"],"workout":"Leichtes Stretching (Hüfte, Schultern). Kein Druck.","feedback":null,"note":""},{"id":31,"week":5,"day":"Donnerstag","date":"1. Mai","dateISO":"2025-05-01","type":"swim","name":"Schwimmen – Ausdauer","desc":"Längere Blöcke, Wettkampf-Pace","zone":"Z2–Z3","bpm":"143–176","meta":["55 min","2.800 m"],"workout":"WU: 400m locker. HT: 3×600m Wettkampf-Pace (143–176 bpm), 90 Sek Pause. CD: 200m.","feedback":null,"note":""},{"id":32,"week":5,"day":"Freitag","date":"2. Mai","dateISO":"2025-05-02","type":"bike","name":"Rennrad – Intervalle","desc":"Zone 3–4 Intervalle","zone":"Z3–Z4","bpm":"164–189","meta":["60 min","~38 km"],"workout":"15 min WU. 5×4 min Zone 4 (176–189 bpm), 3 min Pause. 15 min CD.","feedback":null,"note":""},{"id":33,"week":5,"day":"Samstag","date":"3. Mai","dateISO":"2025-05-03","type":"bike","name":"Rennrad – Langer Ritt","desc":"Grundlagenausdauer","zone":"Z1–Z2","bpm":"< 164","meta":["100–120 min","~75 km"],"workout":"Locker & gleichmäßig. Ernährung üben: alle 45 min Gel/Riegel. Puls unter 164 bpm.","feedback":null,"note":""},{"id":34,"week":5,"day":"Sonntag","date":"4. Mai","dateISO":"2025-05-04","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Schlafen, trinken, erholen.","feedback":null,"note":""},{"id":35,"week":6,"day":"Montag","date":"5. Mai","dateISO":"2025-05-05","type":"swim","name":"Schwimmen – Technik","desc":"Offenes Wasser simulieren","zone":"Z1–Z2","bpm":"< 164","meta":["45 min","2.200 m"],"workout":"WU: 400m locker. HT: 6×200m mit Kraulbewegung + Drehen. CD: 200m. Offenes-Wasser-Orientierung üben.","feedback":null,"note":""},{"id":36,"week":6,"day":"Dienstag","date":"6. Mai","dateISO":"2025-05-06","type":"run","name":"Laufen – Grundlage","desc":"Zone 2 Dauerlauf","zone":"Z2","bpm":"143–164","meta":["30 min","~5 km"],"workout":"Flacher Untergrund. Puls unter 164 bpm. Pace sollte ~5:40–6:00/km sein. Locker reden können.","feedback":null,"note":""},{"id":37,"week":6,"day":"Mittwoch","date":"7. Mai","dateISO":"2025-05-07","type":"rest","name":"Aktive Erholung","desc":"Dehnen, Mobilität","zone":"Z1","bpm":"< 143","meta":["30 min","Optional"],"workout":"Stretching Hüfte, Waden, Schultern. Foam-Roller wenn vorhanden.","feedback":null,"note":""},{"id":38,"week":6,"day":"Donnerstag","date":"8. Mai","dateISO":"2025-05-08","type":"swim","name":"Schwimmen – Ausdauer","desc":"Längere Blöcke, Renntempo","zone":"Z2–Z3","bpm":"143–176","meta":["55 min","2.200 m"],"workout":"WU: 400m. HT: 4×500m Renntempo (143–176 bpm), 60 Sek Pause. CD: 200m.","feedback":null,"note":""},{"id":39,"week":6,"day":"Freitag","date":"9. Mai","dateISO":"2025-05-09","type":"bike","name":"Rennrad – Intervalle","desc":"Zone 3–4 Tempo","zone":"Z3–Z4","bpm":"164–189","meta":["65 min","~40 km"],"workout":"15 min WU. 6×4 min Zone 4 (176–189 bpm), 3 min Pause. 15 min CD.","feedback":null,"note":""},{"id":40,"week":6,"day":"Samstag","date":"10. Mai","dateISO":"2025-05-10","type":"bike","name":"Brick: Rennrad + Laufen","desc":"Wettkampf-Simulation","zone":"Z2–Z3","bpm":"143–176","meta":["Brick","30 min Rad + 15 min Lauf"],"workout":"Rennrad 30 min Zone 2–3, direkt danach 15 min Laufen Zone 2. Beine auf Lauf umstellen üben. Ernährung & Wechsel üben.","feedback":null,"note":""},{"id":41,"week":6,"day":"Sonntag","date":"11. Mai","dateISO":"2025-05-11","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Gut schlafen, viel trinken.","feedback":null,"note":""},{"id":42,"week":7,"day":"Montag","date":"12. Mai","dateISO":"2025-05-12","type":"swim","name":"Schwimmen – Technik","desc":"Offenes Wasser simulieren","zone":"Z1–Z2","bpm":"< 164","meta":["45 min","2.500 m"],"workout":"WU: 400m locker. HT: 6×200m mit Kraulbewegung + Drehen. CD: 200m. Offenes-Wasser-Orientierung üben.","feedback":null,"note":""},{"id":43,"week":7,"day":"Dienstag","date":"13. Mai","dateISO":"2025-05-13","type":"run","name":"Laufen – Grundlage","desc":"Zone 2 Dauerlauf","zone":"Z2","bpm":"143–164","meta":["35 min","~6 km"],"workout":"Flacher Untergrund. Puls unter 164 bpm. Pace sollte ~5:40–6:00/km sein. Locker reden können.","feedback":null,"note":""},{"id":44,"week":7,"day":"Mittwoch","date":"14. Mai","dateISO":"2025-05-14","type":"rest","name":"Aktive Erholung","desc":"Dehnen, Mobilität","zone":"Z1","bpm":"< 143","meta":["30 min","Optional"],"workout":"Stretching Hüfte, Waden, Schultern. Foam-Roller wenn vorhanden.","feedback":null,"note":""},{"id":45,"week":7,"day":"Donnerstag","date":"15. Mai","dateISO":"2025-05-15","type":"swim","name":"Schwimmen – Ausdauer","desc":"Längere Blöcke, Renntempo","zone":"Z2–Z3","bpm":"143–176","meta":["55 min","2.500 m"],"workout":"WU: 400m. HT: 4×500m Renntempo (143–176 bpm), 60 Sek Pause. CD: 200m.","feedback":null,"note":""},{"id":46,"week":7,"day":"Freitag","date":"16. Mai","dateISO":"2025-05-16","type":"bike","name":"Rennrad – Intervalle","desc":"Zone 3–4 Tempo","zone":"Z3–Z4","bpm":"164–189","meta":["65 min","~45 km"],"workout":"15 min WU. 6×4 min Zone 4 (176–189 bpm), 3 min Pause. 15 min CD.","feedback":null,"note":""},{"id":47,"week":7,"day":"Samstag","date":"17. Mai","dateISO":"2025-05-17","type":"bike","name":"Brick: Rennrad + Laufen","desc":"Wettkampf-Simulation","zone":"Z2–Z3","bpm":"143–176","meta":["Brick","35 min Rad + 20 min Lauf"],"workout":"Rennrad 35 min Zone 2–3, direkt danach 20 min Laufen Zone 2. Beine auf Lauf umstellen üben. Ernährung & Wechsel üben.","feedback":null,"note":""},{"id":48,"week":7,"day":"Sonntag","date":"18. Mai","dateISO":"2025-05-18","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Gut schlafen, viel trinken.","feedback":null,"note":""},{"id":49,"week":8,"day":"Montag","date":"19. Mai","dateISO":"2025-05-19","type":"swim","name":"Schwimmen – Technik (locker)","desc":"Erholungswoche, Technik","zone":"Z1–Z2","bpm":"< 164","meta":["35 min","1.400 m"],"workout":"WU 200m. 4×100m Technik. CD 200m. Leichte Einheit.","feedback":null,"note":""},{"id":50,"week":8,"day":"Dienstag","date":"20. Mai","dateISO":"2025-05-20","type":"run","name":"Laufen – Locker","desc":"Kurzer lockerer Dauerlauf","zone":"Z2","bpm":"143–164","meta":["25 min","~4 km"],"workout":"Sehr lockeres Laufen, Puls unter 164 bpm. Keine Belastung, nur Erholung.","feedback":null,"note":""},{"id":51,"week":8,"day":"Mittwoch","date":"21. Mai","dateISO":"2025-05-21","type":"rest","name":"Aktive Erholung","desc":"Dehnen, Mobilität","zone":"Z1","bpm":"< 143","meta":["20 min","Optional"],"workout":"Leichtes Stretching. Kein Druck.","feedback":null,"note":""},{"id":52,"week":8,"day":"Donnerstag","date":"22. Mai","dateISO":"2025-05-22","type":"bike","name":"Rennrad – Locker","desc":"Erholungsfahrt","zone":"Z1–Z2","bpm":"< 164","meta":["50 min","~22 km"],"workout":"Sehr locker, kein Tempo. Erholung.","feedback":null,"note":""},{"id":53,"week":8,"day":"Freitag","date":"23. Mai","dateISO":"2025-05-23","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training.","feedback":null,"note":""},{"id":54,"week":8,"day":"Samstag","date":"24. Mai","dateISO":"2025-05-24","type":"run","name":"Laufen + Rennrad Brick","desc":"Brick: kurz Rad + Lauf","zone":"Z2–Z3","bpm":"143–176","meta":["60 min gesamt"],"workout":"30 min Rad locker, direkt danach 20 min lockerer Lauf. Brick-Gefühl üben.","feedback":null,"note":""},{"id":55,"week":8,"day":"Sonntag","date":"25. Mai","dateISO":"2025-05-25","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Schlafen, trinken.","feedback":null,"note":""},{"id":56,"week":9,"day":"Montag","date":"26. Mai","dateISO":"2025-05-26","type":"swim","name":"Schwimmen – Technik","desc":"Offenes Wasser simulieren","zone":"Z1–Z2","bpm":"< 164","meta":["45 min","2.800 m"],"workout":"WU: 400m locker. HT: 6×200m mit Kraulbewegung + Drehen. CD: 200m. Offenes-Wasser-Orientierung üben.","feedback":null,"note":""},{"id":57,"week":9,"day":"Dienstag","date":"27. Mai","dateISO":"2025-05-27","type":"run","name":"Laufen – Grundlage","desc":"Zone 2 Dauerlauf","zone":"Z2","bpm":"143–164","meta":["45 min","~8 km"],"workout":"Flacher Untergrund. Puls unter 164 bpm. Pace sollte ~5:40–6:00/km sein. Locker reden können.","feedback":null,"note":""},{"id":58,"week":9,"day":"Mittwoch","date":"28. Mai","dateISO":"2025-05-28","type":"rest","name":"Aktive Erholung","desc":"Dehnen, Mobilität","zone":"Z1","bpm":"< 143","meta":["30 min","Optional"],"workout":"Stretching Hüfte, Waden, Schultern. Foam-Roller wenn vorhanden.","feedback":null,"note":""},{"id":59,"week":9,"day":"Donnerstag","date":"29. Mai","dateISO":"2025-05-29","type":"swim","name":"Schwimmen – Ausdauer","desc":"Längere Blöcke, Renntempo","zone":"Z2–Z3","bpm":"143–176","meta":["55 min","2.800 m"],"workout":"WU: 400m. HT: 4×500m Renntempo (143–176 bpm), 60 Sek Pause. CD: 200m.","feedback":null,"note":""},{"id":60,"week":9,"day":"Freitag","date":"30. Mai","dateISO":"2025-05-30","type":"bike","name":"Rennrad – Intervalle","desc":"Zone 3–4 Tempo","zone":"Z3–Z4","bpm":"164–189","meta":["65 min","~55 km"],"workout":"15 min WU. 6×4 min Zone 4 (176–189 bpm), 3 min Pause. 15 min CD.","feedback":null,"note":""},{"id":61,"week":9,"day":"Samstag","date":"31. Mai","dateISO":"2025-05-31","type":"bike","name":"Brick: Rennrad + Laufen","desc":"Wettkampf-Simulation","zone":"Z2–Z3","bpm":"143–176","meta":["Brick","40 min Rad + 25 min Lauf"],"workout":"Rennrad 40 min Zone 2–3, direkt danach 25 min Laufen Zone 2. Beine auf Lauf umstellen üben. Ernährung & Wechsel üben.","feedback":null,"note":""},{"id":62,"week":9,"day":"Sonntag","date":"1. Juni","dateISO":"2025-06-01","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Gut schlafen, viel trinken.","feedback":null,"note":""},{"id":63,"week":10,"day":"Montag","date":"2. Juni","dateISO":"2025-06-02","type":"swim","name":"Schwimmen – Technik","desc":"Offenes Wasser simulieren","zone":"Z1–Z2","bpm":"< 164","meta":["45 min","2.600 m"],"workout":"WU: 400m locker. HT: 6×200m mit Kraulbewegung + Drehen. CD: 200m. Offenes-Wasser-Orientierung üben.","feedback":null,"note":""},{"id":64,"week":10,"day":"Dienstag","date":"3. Juni","dateISO":"2025-06-03","type":"run","name":"Laufen – Grundlage","desc":"Zone 2 Dauerlauf","zone":"Z2","bpm":"143–164","meta":["40 min","~7 km"],"workout":"Flacher Untergrund. Puls unter 164 bpm. Pace sollte ~5:40–6:00/km sein. Locker reden können.","feedback":null,"note":""},{"id":65,"week":10,"day":"Mittwoch","date":"4. Juni","dateISO":"2025-06-04","type":"rest","name":"Aktive Erholung","desc":"Dehnen, Mobilität","zone":"Z1","bpm":"< 143","meta":["30 min","Optional"],"workout":"Stretching Hüfte, Waden, Schultern. Foam-Roller wenn vorhanden.","feedback":null,"note":""},{"id":66,"week":10,"day":"Donnerstag","date":"5. Juni","dateISO":"2025-06-05","type":"swim","name":"Schwimmen – Ausdauer","desc":"Längere Blöcke, Renntempo","zone":"Z2–Z3","bpm":"143–176","meta":["55 min","2.600 m"],"workout":"WU: 400m. HT: 4×500m Renntempo (143–176 bpm), 60 Sek Pause. CD: 200m.","feedback":null,"note":""},{"id":67,"week":10,"day":"Freitag","date":"6. Juni","dateISO":"2025-06-06","type":"bike","name":"Rennrad – Intervalle","desc":"Zone 3–4 Tempo","zone":"Z3–Z4","bpm":"164–189","meta":["65 min","~50 km"],"workout":"15 min WU. 6×4 min Zone 4 (176–189 bpm), 3 min Pause. 15 min CD.","feedback":null,"note":""},{"id":68,"week":10,"day":"Samstag","date":"7. Juni","dateISO":"2025-06-07","type":"bike","name":"Brick: Rennrad + Laufen","desc":"Wettkampf-Simulation","zone":"Z2–Z3","bpm":"143–176","meta":["Brick","35 min Rad + 20 min Lauf"],"workout":"Rennrad 35 min Zone 2–3, direkt danach 20 min Laufen Zone 2. Beine auf Lauf umstellen üben. Ernährung & Wechsel üben.","feedback":null,"note":""},{"id":69,"week":10,"day":"Sonntag","date":"8. Juni","dateISO":"2025-06-08","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Gut schlafen, viel trinken.","feedback":null,"note":""},{"id":70,"week":11,"day":"Montag","date":"9. Juni","dateISO":"2025-06-09","type":"swim","name":"Schwimmen – Renntempo","desc":"1.500m Simulation","zone":"Z2–Z3","bpm":"143–176","meta":["50 min","2.600 m"],"workout":"WU: 400m. HT: 1×1.500m Renntempo (dein Ziel-Wettkampftempo). CD: 300m. Mentale Vorbereitung.","feedback":null,"note":""},{"id":71,"week":11,"day":"Dienstag","date":"10. Juni","dateISO":"2025-06-10","type":"run","name":"Laufen – Tempointervalle","desc":"Zone 3 Intervalle","zone":"Z2–Z3","bpm":"143–176","meta":["45 min","~8 km"],"workout":"10 min WU. 4×8 min Zone 3 (164–176 bpm), 3 min locker. 10 min CD.","feedback":null,"note":""},{"id":72,"week":11,"day":"Mittwoch","date":"11. Juni","dateISO":"2025-06-11","type":"rest","name":"Aktive Erholung","desc":"Mobilität, Dehnen","zone":"Z1","bpm":"< 143","meta":["30 min","Optional"],"workout":"Stretching, Foam-Roller. Leichter Spaziergang ok.","feedback":null,"note":""},{"id":73,"week":11,"day":"Donnerstag","date":"12. Juni","dateISO":"2025-06-12","type":"swim","name":"Schwimmen – Intervalle","desc":"Kurze schnelle Blöcke","zone":"Z3–Z4","bpm":"164–189","meta":["45 min","2.600 m"],"workout":"WU: 300m. HT: 10×100m schnell (164–189 bpm), 20 Sek Pause. CD: 200m.","feedback":null,"note":""},{"id":74,"week":11,"day":"Freitag","date":"13. Juni","dateISO":"2025-06-13","type":"bike","name":"Rennrad – Tempo","desc":"Zone 3 Dauerleistung","zone":"Z3","bpm":"164–176","meta":["60 min","~45 km"],"workout":"10 min WU. 40 min Zone 3 (164–176 bpm) gleichmäßig. 10 min CD.","feedback":null,"note":""},{"id":75,"week":11,"day":"Samstag","date":"14. Juni","dateISO":"2025-06-14","type":"bike","name":"Langer Brick","desc":"Volle Wettkampf-Sim","zone":"Z2–Z3","bpm":"143–176","meta":["Brick","40 km Rad + 10 km Lauf"],"workout":"40 km Rennrad Renntempo, direkt danach 10 km Laufen. Volle Wettkampfsimulation. Ernährung genau wie am Renntag.","feedback":null,"note":""},{"id":76,"week":11,"day":"Sonntag","date":"15. Juni","dateISO":"2025-06-15","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Gut schlafen, Beine hochlegen.","feedback":null,"note":""},{"id":77,"week":12,"day":"Montag","date":"16. Juni","dateISO":"2025-06-16","type":"swim","name":"Schwimmen – Renntempo","desc":"1.500m Simulation","zone":"Z2–Z3","bpm":"143–176","meta":["50 min","2.400 m"],"workout":"WU: 400m. HT: 1×1.500m Renntempo (dein Ziel-Wettkampftempo). CD: 300m. Mentale Vorbereitung.","feedback":null,"note":""},{"id":78,"week":12,"day":"Dienstag","date":"17. Juni","dateISO":"2025-06-17","type":"run","name":"Laufen – Tempointervalle","desc":"Zone 3 Intervalle","zone":"Z2–Z3","bpm":"143–176","meta":["40 min","~7 km"],"workout":"10 min WU. 4×8 min Zone 3 (164–176 bpm), 3 min locker. 10 min CD.","feedback":null,"note":""},{"id":79,"week":12,"day":"Mittwoch","date":"18. Juni","dateISO":"2025-06-18","type":"rest","name":"Aktive Erholung","desc":"Mobilität, Dehnen","zone":"Z1","bpm":"< 143","meta":["30 min","Optional"],"workout":"Stretching, Foam-Roller. Leichter Spaziergang ok.","feedback":null,"note":""},{"id":80,"week":12,"day":"Donnerstag","date":"19. Juni","dateISO":"2025-06-19","type":"swim","name":"Schwimmen – Intervalle","desc":"Kurze schnelle Blöcke","zone":"Z3–Z4","bpm":"164–189","meta":["45 min","2.400 m"],"workout":"WU: 300m. HT: 10×100m schnell (164–189 bpm), 20 Sek Pause. CD: 200m.","feedback":null,"note":""},{"id":81,"week":12,"day":"Freitag","date":"20. Juni","dateISO":"2025-06-20","type":"bike","name":"Rennrad – Tempo","desc":"Zone 3 Dauerleistung","zone":"Z3","bpm":"164–176","meta":["60 min","~40 km"],"workout":"10 min WU. 40 min Zone 3 (164–176 bpm) gleichmäßig. 10 min CD.","feedback":null,"note":""},{"id":82,"week":12,"day":"Samstag","date":"21. Juni","dateISO":"2025-06-21","type":"bike","name":"Langer Brick","desc":"Volle Wettkampf-Sim","zone":"Z2–Z3","bpm":"143–176","meta":["Brick","40 km Rad + 10 km Lauf"],"workout":"40 km Rennrad Renntempo, direkt danach 10 km Laufen. Volle Wettkampfsimulation. Ernährung genau wie am Renntag.","feedback":null,"note":""},{"id":83,"week":12,"day":"Sonntag","date":"22. Juni","dateISO":"2025-06-22","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Gut schlafen, Beine hochlegen.","feedback":null,"note":""},{"id":84,"week":13,"day":"Montag","date":"23. Juni","dateISO":"2025-06-23","type":"swim","name":"Schwimmen – Renntempo","desc":"1.500m Simulation","zone":"Z2–Z3","bpm":"143–176","meta":["50 min","2.200 m"],"workout":"WU: 400m. HT: 1×1.500m Renntempo (dein Ziel-Wettkampftempo). CD: 300m. Mentale Vorbereitung.","feedback":null,"note":""},{"id":85,"week":13,"day":"Dienstag","date":"24. Juni","dateISO":"2025-06-24","type":"run","name":"Laufen – Tempointervalle","desc":"Zone 3 Intervalle","zone":"Z2–Z3","bpm":"143–176","meta":["35 min","~6 km"],"workout":"10 min WU. 4×8 min Zone 3 (164–176 bpm), 3 min locker. 10 min CD.","feedback":null,"note":""},{"id":86,"week":13,"day":"Mittwoch","date":"25. Juni","dateISO":"2025-06-25","type":"rest","name":"Aktive Erholung","desc":"Mobilität, Dehnen","zone":"Z1","bpm":"< 143","meta":["30 min","Optional"],"workout":"Stretching, Foam-Roller. Leichter Spaziergang ok.","feedback":null,"note":""},{"id":87,"week":13,"day":"Donnerstag","date":"26. Juni","dateISO":"2025-06-26","type":"swim","name":"Schwimmen – Intervalle","desc":"Kurze schnelle Blöcke","zone":"Z3–Z4","bpm":"164–189","meta":["45 min","2.200 m"],"workout":"WU: 300m. HT: 10×100m schnell (164–189 bpm), 20 Sek Pause. CD: 200m.","feedback":null,"note":""},{"id":88,"week":13,"day":"Freitag","date":"27. Juni","dateISO":"2025-06-27","type":"bike","name":"Rennrad – Tempo","desc":"Zone 3 Dauerleistung","zone":"Z3","bpm":"164–176","meta":["60 min","~35 km"],"workout":"10 min WU. 40 min Zone 3 (164–176 bpm) gleichmäßig. 10 min CD.","feedback":null,"note":""},{"id":89,"week":13,"day":"Samstag","date":"28. Juni","dateISO":"2025-06-28","type":"bike","name":"Langer Brick","desc":"Volle Wettkampf-Sim","zone":"Z2–Z3","bpm":"143–176","meta":["Brick","40 km Rad + 10 km Lauf"],"workout":"40 km Rennrad Renntempo, direkt danach 10 km Laufen. Volle Wettkampfsimulation. Ernährung genau wie am Renntag.","feedback":null,"note":""},{"id":90,"week":13,"day":"Sonntag","date":"29. Juni","dateISO":"2025-06-29","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Gut schlafen, Beine hochlegen.","feedback":null,"note":""},{"id":91,"week":14,"day":"Montag","date":"30. Juni","dateISO":"2025-06-30","type":"swim","name":"Schwimmen – Locker","desc":"Volumen runter, Schärfe erhalten","zone":"Z2","bpm":"143–164","meta":["35 min","1.400 m"],"workout":"WU 300m. 4×200m locker bei Renntempo. CD 300m. Kein Stress.","feedback":null,"note":""},{"id":92,"week":14,"day":"Dienstag","date":"1. Juli","dateISO":"2025-07-01","type":"run","name":"Laufen – Kurz & locker","desc":"Beine frisch halten","zone":"Z2","bpm":"143–164","meta":["25 min","~4 km"],"workout":"Lockerer Dauerlauf, keine Intensität. Puls unter 164 bpm.","feedback":null,"note":""},{"id":93,"week":14,"day":"Mittwoch","date":"2. Juli","dateISO":"2025-07-02","type":"rest","name":"Aktive Erholung","desc":"Dehnen, Spaziergang","zone":"Z1","bpm":"< 143","meta":["20 min","Optional"],"workout":"Leichtes Stretching. Kein Druck.","feedback":null,"note":""},{"id":94,"week":14,"day":"Donnerstag","date":"3. Juli","dateISO":"2025-07-03","type":"swim","name":"Schwimmen – Kurze Intervalle","desc":"Schärfe erhalten","zone":"Z2–Z3","bpm":"143–176","meta":["35 min","1.400 m"],"workout":"WU 200m. 6×150m bei Renntempo. CD 200m.","feedback":null,"note":""},{"id":95,"week":14,"day":"Freitag","date":"4. Juli","dateISO":"2025-07-04","type":"bike","name":"Rennrad – Kurz mit Stich","desc":"2×10 min Zone 3","zone":"Z2–Z3","bpm":"143–176","meta":["45 min","~20 km"],"workout":"20 min locker WU. 2×10 min Zone 3 (164–176 bpm). 10 min CD. Beine frisch halten.","feedback":null,"note":""},{"id":96,"week":14,"day":"Samstag","date":"5. Juli","dateISO":"2025-07-05","type":"run","name":"Laufen – Sehr locker","desc":"Letzte längere Einheit","zone":"Z1–Z2","bpm":"< 164","meta":["30 min","~5 km"],"workout":"Sehr locker, kein Tempo. Letzte Einheit vor der Rennsimulation.","feedback":null,"note":""},{"id":97,"week":14,"day":"Sonntag","date":"6. Juli","dateISO":"2025-07-06","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Viel trinken, früh schlafen.","feedback":null,"note":""},{"id":98,"week":15,"day":"Montag","date":"7. Juli","dateISO":"2025-07-07","type":"swim","name":"Schwimmen – Kurz & locker","desc":"Frisch bleiben","zone":"Z2","bpm":"143–164","meta":["25 min","1.000 m"],"workout":"WU 200m. 4×100m Renntempo locker. CD 200m. Kein Stress.","feedback":null,"note":""},{"id":99,"week":15,"day":"Dienstag","date":"8. Juli","dateISO":"2025-07-08","type":"run","name":"Laufen – Mini","desc":"5×100m Strides","zone":"Z2–Z3","bpm":"143–176","meta":["20 min","~3 km"],"workout":"10 min lockeres Einlaufen, dann 5×100m zügige Strides (keine Sprints), 10 min auslaufen. Beine wach halten.","feedback":null,"note":""},{"id":100,"week":15,"day":"Mittwoch","date":"9. Juli","dateISO":"2025-07-09","type":"rest","name":"Ruhetag","desc":"Vollständige Erholung","zone":"—","bpm":"—","meta":["—"],"workout":"Kein Training. Ausrüstung checken, Streckenkarte anschauen.","feedback":null,"note":""},{"id":101,"week":15,"day":"Donnerstag","date":"10. Juli","dateISO":"2025-07-10","type":"swim","name":"Schwimmen – Kurz im Wettkampfanzug","desc":"Neopren testen","zone":"Z1–Z2","bpm":"< 164","meta":["20 min","800 m"],"workout":"Kurzes lockeres Schwimmen mit Neoprenanzug. Gefühl auffrischen. Kein Stress.","feedback":null,"note":""},{"id":102,"week":15,"day":"Freitag","date":"11. Juli","dateISO":"2025-07-11","type":"bike","name":"Rennrad – Legs-Check","desc":"Kurze Aktivierung","zone":"Z1–Z2","bpm":"< 164","meta":["25 min","~12 km"],"workout":"Sehr lockere Ausfahrt. 3×1 min etwas zügiger (Zone 3) eingebaut. Beine wecken, nicht belasten.","feedback":null,"note":""}];
+const PHASES=[
+  {id:'basis',    name:'Phase 1 – Basis',       weeks:[1,2,3,4,5],  color:'var(--z2)', note:'Kein Laufen. Schwimmen & Rennrad aufbauen.'},
+  {id:'aufbau',   name:'Phase 2 – Aufbau',      weeks:[6,7,8,9,10], color:'var(--z3)', note:'Laufen kommt wieder dazu. Bricks starten.'},
+  {id:'wkprep',   name:'Phase 3 – WK-Vorbereitung', weeks:[11,12,13], color:'var(--z4)', note:'Wettkampf-Simulation, hohe Intensität.'},
+  {id:'taper',    name:'Phase 4 – Tapering',    weeks:[14,15],      color:'var(--green)', note:'Volumen runter, Schärfe erhalten.'},
+];
+const PHASE_FOR_WEEK = w => PHASES.find(p=>p.weeks.includes(w));
+const ZC={'Z1':'var(--z1)','Z1–Z2':'var(--z1)','Z2':'var(--z2)','Z2–Z3':'var(--z2)','Z3':'var(--z3)','Z3–Z4':'var(--z3)','Z4':'var(--z4)','Z5':'var(--z5)','—':'var(--text3)'};
+
+let sessions = null;
+let curWeek=1, curId=null, curRating=null, swapFrom=null, dragFrom=null;
+let _lastTs=0, _polling=false;
+
+// ── JSONBIN SYNC ──────────────────────────────────────────────────────────
+const JB_BASE = 'https://api.jsonbin.io/v3';
+
+function showSyncStatus(msg, color){
+  var el=document.getElementById('sync-status');
+  if(el){el.textContent=msg;el.style.color=color||'var(--text3)';}
+}
+
+function getCfg(){
+  try{return JSON.parse(localStorage.getItem('triplan_cfg')||'{}');}catch(e){return {};}
+}
+function saveCfg(cfg){localStorage.setItem('triplan_cfg',JSON.stringify(cfg));}
+
+async function jbRequest(method, path, body, apiKey){
+  var opts={method:method,headers:{'X-Master-Key':apiKey,'Content-Type':'application/json','X-Bin-Meta':'false'}};
+  if(body!==undefined) opts.body=JSON.stringify(body);
+  var res=await fetch(JB_BASE+path,opts);
+  if(!res.ok){var t=await res.text();throw new Error(res.status+': '+t.slice(0,120));}
+  return res.json();
+}
+
+async function cloudSave(sessions_data){
+  var cfg=getCfg();
+  if(!cfg.apiKey) throw new Error('Kein API Key');
+  var payload={sessions:sessions_data,ts:Date.now()};
+  if(!cfg.binId){
+    // Create new bin
+    var res=await fetch(JB_BASE+'/b',{
+      method:'POST',
+      headers:{'X-Master-Key':cfg.apiKey,'Content-Type':'application/json','X-Bin-Name':'TriPlan Hamburg 2025','X-Bin-Private':'true'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok){var t=await res.text();throw new Error(res.status+': '+t.slice(0,120));}
+    var json=await res.json();
+    cfg.binId=json.metadata.id;
+    saveCfg(cfg);
+    document.querySelectorAll('.bin-id-display').forEach(function(el){el.textContent=cfg.binId;});
+  } else {
+    var res2=await fetch(JB_BASE+'/b/'+cfg.binId,{
+      method:'PUT',
+      headers:{'X-Master-Key':cfg.apiKey,'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    if(!res2.ok){var t2=await res2.text();throw new Error(res2.status+': '+t2.slice(0,120));}
+  }
+  _lastTs=payload.ts;
+}
+
+async function cloudLoad(){
+  var cfg=getCfg();
+  if(!cfg.apiKey||!cfg.binId) return null;
+  var res=await fetch(JB_BASE+'/b/'+cfg.binId+'/latest',{
+    headers:{'X-Master-Key':cfg.apiKey,'X-Bin-Meta':'false'}
+  });
+  if(!res.ok) throw new Error(res.status);
+  var data=await res.json();
+  if(data&&data.sessions&&data.sessions.length===BASE_SESSIONS.length){
+    _lastTs=data.ts||0;
+    return data.sessions;
+  }
+  return null;
+}
+
+async function save(){
+  try{
+    await cloudSave(sessions);
+    showSyncStatus('✓ '+new Date().toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'}),'var(--green)');
+  }catch(e){
+    var msg=e.message||'';
+    if(msg.indexOf('Kein API Key')>=0){
+      showSyncStatus('⚙ Sync einrichten','var(--bike)');
+    } else {
+      showSyncStatus('⚠ '+msg.slice(0,40),'var(--run)');
+    }
+    try{localStorage.setItem('triplan_backup',JSON.stringify(sessions));}catch(_){}
+  }
+}
+
+async function pollForUpdates(){
+  if(_polling) return;
+  var cfg=getCfg();
+  if(!cfg.apiKey||!cfg.binId) return;
+  _polling=true;
+  try{
+    var res=await fetch(JB_BASE+'/b/'+cfg.binId+'/latest',{
+      headers:{'X-Master-Key':cfg.apiKey,'X-Bin-Meta':'false'}
+    });
+    if(res.ok){
+      var data=await res.json();
+      if(data&&data.ts&&data.ts>_lastTs){
+        sessions=data.sessions;
+        _lastTs=data.ts;
+        showSyncStatus('🔄 '+new Date().toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'}),'var(--accent)');
+        renderWeek();
+        var activeTab=document.querySelector('.tab-content.active');
+        if(activeTab&&activeTab.id==='tab-overview') renderOverview();
+      }
+    }
+  }catch(e){}
+  _polling=false;
+}
+
+// ── SYNC MODAL ────────────────────────────────────────────────────────────
+function openSyncModal(){
+  var cfg=getCfg();
+  document.getElementById('inp-apikey').value=cfg.apiKey||'';
+  document.getElementById('inp-binid').value=cfg.binId||'';
+  document.querySelectorAll('.bin-id-display').forEach(function(el){
+    el.textContent=cfg.binId||'(wird automatisch erstellt)';
+  });
+  document.getElementById('sync-modal').style.display='flex';
+}
+function closeSyncModal(){document.getElementById('sync-modal').style.display='none';}
+
+async function applySyncConfig(){
+  var apiKey=document.getElementById('inp-apikey').value.trim();
+  var binId=document.getElementById('inp-binid').value.trim();
+  if(!apiKey){alert('Bitte API Key eingeben');return;}
+  var btn=document.getElementById('cfg-save-btn');
+  btn.textContent='Verbinde…';btn.disabled=true;
+  try{
+    var cfg=getCfg();
+    cfg.apiKey=apiKey;
+    if(binId) cfg.binId=binId;
+    saveCfg(cfg);
+    var loaded=await cloudLoad();
+    if(loaded){
+      sessions=loaded;
+      showSyncStatus('✓ Verbunden & geladen','var(--green)');
+      renderWeek();
+      var activeTab=document.querySelector('.tab-content.active');
+      if(activeTab&&activeTab.id==='tab-overview') renderOverview();
+    } else {
+      await save();
+      showSyncStatus('✓ Cloud-Speicher erstellt','var(--green)');
+    }
+    // Show bin ID
+    var updCfg=getCfg();
+    document.querySelectorAll('.bin-id-display').forEach(function(el){
+      el.textContent=updCfg.binId||'';
+    });
+    closeSyncModal();
+  }catch(e){
+    showSyncStatus('⚠ Fehler: '+e.message,'var(--run)');
+    alert('Fehler: '+e.message+'\n\nBitte API Key prüfen.');
+  }
+  btn.textContent='Speichern & verbinden';btn.disabled=false;
+}
+
+// Detect current week
+(()=>{
+  const today=new Date();
+  for(let w=1;w<=15;w++){
+    const wstart=new Date(2025,2,31+(w-1)*7);
+    const wend=new Date(wstart);wend.setDate(wstart.getDate()+6);
+    if(today>=wstart&&today<=wend){curWeek=w;break;}
+  }
+  if(curWeek>15)curWeek=1;
+})();
+function rl(r){return{easy:'Zu leicht 😄',good:'Gut 👍',hard:'Zu schwer 🔥',skipped:'Skip ⏭'}[r]||r;}
+
+// ── WEEK RENDER ───────────────────────────────────────────────────────────
+function renderWeek(){
+  const wk=sessions.filter(s=>s.week===curWeek);
+  const phase=PHASE_FOR_WEEK(curWeek);
+  const phaseName=phase?phase.name:'';
+  const phaseColor=phase?phase.color:'var(--accent)';
+
+  document.getElementById('wk-title').textContent=`Woche ${curWeek}`;
+  const first=wk[0],last=wk[wk.length-1];
+  document.getElementById('wk-sub').innerHTML=
+    `${first?first.date:''} – ${last?last.date:''} &nbsp;<span class="phase-pill" style="background:${phaseColor}22;color:${phaseColor};border:1px solid ${phaseColor}44">${phaseName}</span>`;
+
+  document.getElementById('prev-btn').disabled=curWeek<=1;
+  document.getElementById('next-btn').disabled=curWeek>=15;
+
+  const trainable=wk.filter(s=>s.type!=='rest').length;
+  const done=wk.filter(s=>s.feedback).length;
+  document.getElementById('progress-fill').style.width=trainable?(done/trainable*100)+'%':'0%';
+  document.getElementById('adjust-btn').disabled=done<2;
+
+  const g=document.getElementById('days-grid');
+  g.innerHTML='';
+  wk.forEach((s,idx)=>{
+    const absIdx=sessions.indexOf(s);
+    const card=document.createElement('div');
+    const isSel=swapFrom===s.id;
+    const isRace=s.type==='swim'&&s.week===15&&s.day==='Sonntag';
+    card.className=`day-card${s.feedback?' done':''}${(s.type==='rest'&&!isRace)?' rest-day':''}${isSel?' swap-selected':''}${isRace?' race-day':''}`;
+    const zc=ZC[s.zone]||'var(--text3)';
+    const dotType=isRace?'race':s.type;
+
+    const actionCol=s.feedback
+      ?`<div class="done-badge">${rl(s.feedback)}</div>`
+      :s.type!=='rest'
+      ?`<button class="feedback-btn primary" onclick="openModal(${s.id})">Feedback</button>`
+      :`<span style="font-size:11px;color:var(--text3)">Ruhetag</span>`;
+
+    const swapCol=s.type!=='rest'&&!s.feedback&&!isRace
+      ?`<button class="swap-btn${isSel?' active':''}" onclick="startSwap(${s.id},event)">⇄</button>`:'';
+
+    card.innerHTML=`
+      <div><div class="day-name">${s.day}</div><div class="day-date">${s.date}</div></div>
+      <div>
+        <div class="stype"><div class="type-dot ${dotType}"></div><div class="sname">${s.name}</div></div>
+        <div class="sdesc">${s.desc}</div>
+        <div class="smeta">
+          ${s.meta.map(m=>`<span class="meta-pill">${m}</span>`).join('')}
+          ${s.zone!=='—'?`<span class="zone-pill" style="background:${zc}22;color:${zc};border:1px solid ${zc}44">${s.zone} · ${s.bpm} bpm</span>`:''}
+        </div>
+        ${s.note?`<div style="font-size:11px;color:var(--text3);margin-top:4px;font-style:italic">"${s.note}"</div>`:''}
+      </div>
+      <div class="day-actions">${actionCol}${swapCol}</div>
+    `;
+    setupDrag(card,absIdx);
+    g.appendChild(card);
+  });
+}
+
+// ── WEEK NAVIGATION ───────────────────────────────────────────────────────
+function buildWeekSelect(){
+  const sel=document.getElementById('week-select');
+  for(let w=1;w<=15;w++){
+    const ph=PHASE_FOR_WEEK(w);
+    const o=document.createElement('option');
+    o.value=w;
+    o.textContent=`W${w} – ${ph?ph.name.split('–')[1].trim():''}`;
+    sel.appendChild(o);
+  }
+  sel.value=curWeek;
+}
+function gotoWeek(w){curWeek=w;document.getElementById('week-select').value=w;cancelSwap();renderWeek();}
+function changeWeek(d){gotoWeek(Math.max(1,Math.min(15,curWeek+d)));}
+
+// ── OVERVIEW ──────────────────────────────────────────────────────────────
+function renderOverview(){
+  const po=document.getElementById('phase-overview');
+  po.innerHTML='';
+  PHASES.forEach(ph=>{
+    const phSessions=sessions.filter(s=>ph.weeks.includes(s.week));
+    const done=phSessions.filter(s=>s.feedback).length;
+    const total=phSessions.filter(s=>s.type!=='rest').length;
+    const pct=total?Math.round(done/total*100):0;
+    const card=document.createElement('div');
+    card.className='phase-card';
+    card.innerHTML=`
+      <div class="pc-label">${ph.weeks[0]===ph.weeks[ph.weeks.length-1]?'Woche '+ph.weeks[0]:'Wochen '+ph.weeks[0]+'–'+ph.weeks[ph.weeks.length-1]}</div>
+      <div class="pc-name" style="color:${ph.color}">${ph.name}</div>
+      <div class="pc-weeks">${ph.note}</div>
+      <div style="font-size:12px;color:var(--text3)">${done}/${total} Einheiten ✓</div>
+      <div class="pc-bar"><div class="pc-fill" style="width:${pct}%;background:${ph.color}"></div></div>
+    `;
+    card.onclick=()=>{gotoWeek(ph.weeks[0]);switchTab('plan',document.querySelector('.tab-btn'));};
+    po.appendChild(card);
+  });
+
+  const awg=document.getElementById('all-weeks-grid');
+  awg.innerHTML='';
+  for(let w=1;w<=15;w++){
+    const ph=PHASE_FOR_WEEK(w);
+    const wk=sessions.filter(s=>s.week===w);
+    const done=wk.filter(s=>s.feedback).length;
+    const trainable=wk.filter(s=>s.type!=='rest').length;
+    const pct=trainable?Math.round(done/trainable*100):0;
+    const row=document.createElement('div');
+    row.style.cssText='background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;';
+    const types=wk.filter(s=>s.type!=='rest').map(s=>s.type);
+    const icons=types.map(t=>({swim:'🏊',bike:'🚴',run:'🏃'})[t]||'').filter(Boolean);
+    const uniqueIcons=[...new Set(icons)].join(' ');
+    row.innerHTML=`
+      <div style="min-width:60px"><span style="font-size:13px;font-weight:600">W${w}</span></div>
+      <div style="flex:1">
+        <div style="font-size:12px;color:${ph?ph.color:'var(--text2)'};">${ph?ph.name:''}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${wk[0]?wk[0].date:''} – ${wk[wk.length-1]?wk[wk.length-1].date:''}</div>
+      </div>
+      <div style="font-size:14px">${uniqueIcons}</div>
+      <div style="min-width:80px;text-align:right;font-size:12px;color:var(--text2)">${done}/${trainable} ✓</div>
+      <div style="min-width:50px;background:var(--bg3);border-radius:3px;height:4px"><div style="width:${pct}%;background:${ph?ph.color:'var(--accent)'};height:4px;border-radius:3px"></div></div>
+    `;
+    row.onclick=()=>{gotoWeek(w);switchTab('plan',document.querySelector('.tab-btn'));};
+    awg.appendChild(row);
+  }
+}
+
+// ── DRAG & DROP ───────────────────────────────────────────────────────────
+function setupDrag(card,absIdx){
+  const s=sessions[absIdx];
+  if(s.type==='rest'||s.feedback) return;
+  card.draggable=true;
+  card.addEventListener('dragstart',e=>{dragFrom=absIdx;card.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+  card.addEventListener('dragend',()=>{card.classList.remove('dragging');dragFrom=null;});
+  card.addEventListener('dragover',e=>{e.preventDefault();if(dragFrom!==null&&dragFrom!==absIdx)card.classList.add('drag-over');});
+  card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
+  card.addEventListener('drop',e=>{e.preventDefault();card.classList.remove('drag-over');if(dragFrom!==null&&dragFrom!==absIdx)doSwap(dragFrom,absIdx);});
+}
+
+// ── SWAP ──────────────────────────────────────────────────────────────────
+function startSwap(id,ev){
+  ev.stopPropagation();
+  const idx=sessions.findIndex(s=>s.id===id);
+  if(swapFrom===id){cancelSwap();return;}
+  if(swapFrom!==null){
+    const fromIdx=sessions.findIndex(s=>s.id===swapFrom);
+    doSwap(fromIdx,idx);return;
+  }
+  swapFrom=id;
+  document.getElementById('swap-bar').style.display='flex';
+  renderWeek();
+}
+function cancelSwap(){swapFrom=null;document.getElementById('swap-bar').style.display='none';renderWeek();}
+function doSwap(a,b){
+  const kA={id:sessions[a].id,week:sessions[a].week,day:sessions[a].day,date:sessions[a].date,dateISO:sessions[a].dateISO};
+  const kB={id:sessions[b].id,week:sessions[b].week,day:sessions[b].day,date:sessions[b].date,dateISO:sessions[b].dateISO};
+  const tmp={...sessions[a]};
+  sessions[a]={...sessions[b],...kA};
+  sessions[b]={...tmp,...kB};
+  swapFrom=null;dragFrom=null;
+  document.getElementById('swap-bar').style.display='none';
+  save();renderWeek();
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────
+function openModal(id){
+  curId=id;curRating=null;
+  const s=sessions.find(x=>x.id===id);
+  document.getElementById('modal-title').textContent=s.name;
+  document.getElementById('modal-sub').textContent=s.workout;
+  document.getElementById('feedback-note').value=s.note||'';
+  document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('modal').style.display='flex';
+}
+function closeModal(){document.getElementById('modal').style.display='none';}
+function selRating(r,btn){curRating=r;document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');}
+function saveFeedback(){
+  if(!curRating){alert('Bitte Bewertung wählen');return;}
+  const idx=sessions.findIndex(s=>s.id===curId);
+  sessions[idx].feedback=curRating;
+  sessions[idx].note=document.getElementById('feedback-note').value;
+  save();closeModal();renderWeek();
+}
+
+// ── AI ────────────────────────────────────────────────────────────────────
+async function requestAI(){
+  const btn=document.getElementById('adjust-btn');
+  btn.disabled=true;btn.textContent='⏳ Analysiere...';
+  const wrap=document.getElementById('ai-panel-wrap');
+  wrap.style.display='block';
+  wrap.innerHTML='<div class="ai-panel"><div class="ai-loading"><div class="spinner"></div> Claude analysiert dein Feedback…</div></div>';
+  const wk=sessions.filter(s=>s.week===curWeek);
+  const fb=wk.filter(s=>s.feedback).map(s=>`${s.name} (${s.day}): ${rl(s.feedback)}${s.note?', "'+s.note+'"':''}`).join('\n');
+  const phase=PHASE_FOR_WEEK(curWeek);
+  const prompt=`Du bist Triathlon-Trainer. Analysiere das Feedback für Woche ${curWeek} (${phase?phase.name:''}) und gib 3–4 konkrete Anpassungen auf Deutsch.
+Athlet: Hamburg Triathlon 11.07.2025 Olympisch. HFmax 205 bpm. Fußverletzung: kein Laufen bis Ende April (Woche 1–5).
+Zonen: Z1 <143, Z2 143–164, Z3 164–176, Z4 176–189, Z5 189–205 bpm.
+Feedback:\n${fb}
+NUR JSON: {"summary":"...","adjustments":[{"title":"...","text":"...","type":"swim|bike|run|rest|intensity"}],"nextFocus":"..."}`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const txt=data.content.map(c=>c.text||'').join('').trim();
+    let r;try{r=JSON.parse(txt);}catch{const m=txt.match(/\{[\s\S]*\}/);r=m?JSON.parse(m[0]):null;}
+    if(!r)throw 0;
+    const tc={swim:'var(--swim)',bike:'var(--bike)',run:'var(--run)',rest:'var(--rest)',intensity:'var(--accent)'};
+    const te={swim:'🏊',bike:'🚴',run:'🏃',rest:'😴',intensity:'⚡'};
+    wrap.innerHTML=`<div class="ai-panel"><h4>⚡ KI-Anpassung Woche ${curWeek}</h4><p style="margin-bottom:10px">${r.summary}</p><div style="display:flex;flex-direction:column;gap:7px">${r.adjustments.map(a=>`<div style="border-left:3px solid ${tc[a.type]||'var(--accent)'};padding:8px 12px;background:var(--bg3);border-radius:0 var(--radius-sm) var(--radius-sm) 0"><div style="font-size:13px;font-weight:600;margin-bottom:2px">${te[a.type]||'•'} ${a.title}</div><div style="font-size:13px;color:var(--text2);line-height:1.5">${a.text}</div></div>`).join('')}</div>${r.nextFocus?`<div style="margin-top:11px;padding:9px 12px;background:rgba(91,142,240,.1);border-radius:var(--radius-sm);border:1px solid rgba(91,142,240,.2)"><span style="font-size:12px;color:var(--accent);font-weight:600">NÄCHSTE WOCHE:</span><br><span style="font-size:13px;color:var(--text2)">${r.nextFocus}</span></div>`:''}</div>`;
+    btn.textContent='✓ Angepasst';btn.style.background='var(--green)';
+  }catch(e){
+    wrap.innerHTML='<div class="ai-panel"><p style="color:var(--run)">Fehler bei KI-Analyse.</p></div>';
+    btn.disabled=false;btn.textContent='⚡ KI-Anpassung';
+  }
+}
+
+// ── ZONES ─────────────────────────────────────────────────────────────────
+const ZONES=[
+  {num:1,name:'Regeneration',    lo:0,    hi:.70,color:'var(--z1)',desc:'Sehr leicht, Gespräch problemlos. Ideal für WU/CD und aktive Erholung.',sports:['WU/CD Schwimmen','Aktive Erholung','Sehr lockerer Lauf']},
+  {num:2,name:'Grundlage',       lo:.70,  hi:.80,color:'var(--z2)',desc:'Fettverbrennung & aerober Aufbau. Größter Teil des Trainings. Reden möglich. Deine 5:40er-Pace liegt genau hier.',sports:['Lange Ausfahrten Rad','Dauerschwimmen','5:40/km = Zone 2']},
+  {num:3,name:'Tempo / aerob',   lo:.80,  hi:.86,color:'var(--z3)',desc:'Aerob-anaerober Übergang, Wettkampf-Renntempo Olympisch. Reden anstrengend.',sports:['Rad-Intervalle','Schwimmen Renntempo','Laufen Wettkampf-Pace']},
+  {num:4,name:'Schwelle',        lo:.86,  hi:.92,color:'var(--z4)',desc:'Laktatschwelle. Kurze harte Blöcke 3–5 min. Nur einzelne Wörter möglich.',sports:['Kurze Rad-Intervalle','Sprint-Schwimmen']},
+  {num:5,name:'VO₂max / Spitze',lo:.92,  hi:1.0, color:'var(--z5)',desc:'Maximale Intensität ≤ 2 min. Sparsam einsetzen, nur fortgeschrittene Phase.',sports:['Sprint-Intervalle','Finish-Sprint']},
+];
+function renderZones(){
+  const g=document.getElementById('zones-grid');g.innerHTML='';
+  ZONES.forEach(z=>{
+    const lo=Math.round(205*z.lo),hi=Math.round(205*z.hi);
+    const w=Math.min(100,Math.round((z.hi-z.lo)/.30*100));
+    const c=document.createElement('div');c.className='zone-card';
+    c.innerHTML=`<div class="zone-header"><div class="zone-badge" style="background:${z.color}22;color:${z.color}">Z${z.num}</div><div><div class="zone-num">Zone ${z.num} – ${z.name}</div><div class="zone-bpm">${z.num===1?'unter '+hi+' bpm':lo+'–'+hi+' bpm'}</div></div></div><div class="zone-bar-wrap"><div class="zone-bar" style="width:${w}%;background:${z.color}"></div></div><div class="zone-desc">${z.desc}</div><div class="zone-sports">${z.sports.map(s=>`<span class="sport-tag">${s}</span>`).join('')}</div>`;
+    g.appendChild(c);
+  });
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='overview')renderOverview();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+async function init(){
+  document.getElementById('days-grid').innerHTML=
+    '<div style="padding:40px;text-align:center;color:var(--text3)"><div class="spinner" style="margin:0 auto 12px"></div>Lade Plan…</div>';
+
+  var cfg=getCfg();
+  if(cfg.apiKey&&cfg.binId){
+    showSyncStatus('Verbinde…','var(--text3)');
+    try{
+      var loaded=await cloudLoad();
+      if(loaded){sessions=loaded;showSyncStatus('✓ Geladen','var(--green)');}
+      else{sessions=BASE_SESSIONS.map(function(s){return Object.assign({},s,{feedback:null,note:''});});await save();}
+    }catch(e){
+      showSyncStatus('⚠ '+e.message,'var(--run)');
+      sessions=BASE_SESSIONS.map(function(s){return Object.assign({},s,{feedback:null,note:''});});
+    }
+  } else {
+    // Try backup
+    try{
+      var backup=localStorage.getItem('triplan_backup');
+      if(backup){var b=JSON.parse(backup);if(b&&b.length===BASE_SESSIONS.length)sessions=b;}
+    }catch(_){}
+    if(!sessions) sessions=BASE_SESSIONS.map(function(s){return Object.assign({},s,{feedback:null,note:''});});
+    showSyncStatus('⚙ Sync einrichten','var(--bike)');
+  }
+
+  buildWeekSelect();renderZones();renderWeek();
+  setInterval(pollForUpdates,8000);
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible') pollForUpdates();
+  });
+}
+init();
+</script>
+
+<!-- Sync Modal -->
+<div id="sync-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;padding:16px;-webkit-overflow-scrolling:touch">
+  <div style="background:#181b24;border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:22px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto">
+    <div style="font-size:17px;font-weight:600;margin-bottom:5px;color:#e8eaf0">☁️ Sync einrichten</div>
+    <p style="font-size:13px;color:#8b90a0;line-height:1.6;margin-bottom:16px">Nutzt <strong style="color:#e8eaf0">JSONBin.io</strong> – komplett kostenlos. Einmal einrichten, danach automatischer Sync auf allen Geräten.</p>
+
+    <div style="background:#1e2130;border-radius:9px;padding:13px;margin-bottom:15px;font-size:13px;line-height:1.9;color:#8b90a0">
+      <div style="font-weight:600;color:#e8eaf0;margin-bottom:5px">Einrichtung (2 Min):</div>
+      <div>1️⃣ <a href="https://jsonbin.io" target="_blank" style="color:#5b8ef0">jsonbin.io</a> öffnen → kostenlos registrieren</div>
+      <div>2️⃣ Oben rechts: <strong style="color:#e8eaf0">API Keys</strong> → <strong style="color:#e8eaf0">+ CREATE ACCESS KEY</strong></div>
+      <div>3️⃣ Key kopieren → unten einfügen → Speichern</div>
+      <div>4️⃣ Bin ID erscheint → auf Handy eingeben</div>
+    </div>
+
+    <div style="margin-bottom:11px">
+      <div style="font-size:12px;color:#555b70;margin-bottom:5px">Master API Key</div>
+      <input id="inp-apikey" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
+        placeholder="$2a$10$..." 
+        style="width:100%;background:#1e2130;border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:10px 11px;font-size:13px;color:#e8eaf0;font-family:monospace;-webkit-appearance:none;box-sizing:border-box">
+    </div>
+
+    <div style="margin-bottom:15px">
+      <div style="font-size:12px;color:#555b70;margin-bottom:5px">Bin ID <span style="color:#555b70;font-size:11px">(leer = wird automatisch erstellt)</span></div>
+      <input id="inp-binid" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
+        placeholder="Bin ID vom anderen Gerät einfügen"
+        style="width:100%;background:#1e2130;border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:10px 11px;font-size:13px;color:#e8eaf0;font-family:monospace;-webkit-appearance:none;box-sizing:border-box">
+      <div style="font-size:11px;color:#555b70;margin-top:5px">Deine Bin ID: <span class="bin-id-display" style="color:#5b8ef0;font-family:monospace"></span></div>
+    </div>
+
+    <div style="display:flex;gap:9px">
+      <button onclick="closeSyncModal()" style="flex:1;padding:11px;background:transparent;border:1px solid rgba(255,255,255,.15);color:#8b90a0;border-radius:7px;cursor:pointer;font-size:13px;-webkit-appearance:none">Später</button>
+      <button id="cfg-save-btn" onclick="applySyncConfig()" style="flex:2;padding:11px;background:#5b8ef0;border:none;color:white;border-radius:7px;cursor:pointer;font-size:14px;font-weight:600;-webkit-appearance:none">Speichern & verbinden</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
